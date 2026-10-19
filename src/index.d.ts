@@ -7,6 +7,7 @@ export interface CacheOptions {
   max?: number;
   /** Remember a failure this long. Default 0 (failures are not cached). */
   errorTtlMs?: number;
+  /** Milliseconds. Default: a monotonic clock. A step back counts as expired. */
   now?: () => number;
 }
 

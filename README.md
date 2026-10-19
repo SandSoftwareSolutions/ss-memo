@@ -29,8 +29,12 @@ await getRates("EUR");  // arguments become the key (JSON); pass `key` for objec
 
 - **Single flight.** While a value is loading, every caller shares that one load, and all of them see the same result or the same error.
 - **Failures are not cached** (default), so one bad moment does not stick. For a backend that is down, `errorTtlMs: 5000` remembers the failure for 5 seconds so you do not hammer it.
-- **Stale while revalidate.** With `staleMs`, an expired value is still returned immediately and refreshed in the background. If that refresh fails, you keep getting the old value.
-- **Memory cap.** `max` entries; the least recently used go first.
+- **Stale while revalidate.** With `staleMs`, an expired value is still returned immediately and refreshed in the background. If that refresh fails, you keep getting the old value (with `errorTtlMs` the failing backend is also left alone for that long).
+- **Memory cap.** `max` entries; the least recently used go first. Loads in flight and remembered failures count too, so a flood of bad keys cannot grow the table.
+- **`delete`, `clear` and `set` win over a load that is still running.** The callers already waiting get their answer, but it is not stored, so an invalidation is not undone by a slow load.
+- **Default keys of `memoize`** are the arguments as JSON, with `undefined`, `NaN`, `Infinity` and bigint kept apart from `null` and each other. Maps, Sets, functions and symbols as arguments are refused (the call rejects with a `TypeError`): pass `key`.
+- **Clock.** The default clock never jumps back; if your own `now` does, the negative age counts as expired.
+- A loader that never settles blocks that key for good (everyone shares its load): give your loader its own timeout.
 - `cache.set`, `peek` (fresh value or `undefined`, never loads), `delete`, `clear`, `size`.
 - `memoize(fn)` without options caches forever; `fn.cache` is the cache underneath, so you can clear it.
 
