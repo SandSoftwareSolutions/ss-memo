@@ -10,6 +10,8 @@ A small cache with a time limit that also protects what is behind it: ten simult
 npm install @sandsoftwaresolutions/memo
 ```
 
+Works with `import` and `require()`, and ships TypeScript types for both.
+
 ## Usage
 
 ```js
